@@ -8,10 +8,10 @@ import (
 	"os/signal"
 	"time"
 
-	"Gateway311/engine/request"
-	"Gateway311/engine/router"
-	"Gateway311/engine/services"
-	"Gateway311/engine/telemetry"
+	"github.com/open311-gateway/engine/request"
+	"github.com/open311-gateway/engine/router"
+	"github.com/open311-gateway/engine/services"
+	"github.com/open311-gateway/engine/telemetry"
 
 	"github.com/ant0ine/go-json-rest/rest"
 	log "github.com/jeffizhungry/logrus"
@@ -28,6 +28,19 @@ func main() {
 	log.Debug("Version 0.1.1")
 	api := rest.NewApi()
 	api.Use(rest.DefaultDevStack...)
+	api.Use(&rest.CorsMiddleware{
+		RejectNonCorsRequests: false,
+		OriginValidator: func(origin string, request *rest.Request) bool {
+			// return origin == "http://my.other.host"
+			return true
+		},
+		AllowedMethods: []string{"GET", "POST"},
+		AllowedHeaders: []string{
+			"Accept", "Content-Type", "X-Custom-Header", "Origin"},
+		AccessControlAllowCredentials: true,
+		AccessControlMaxAge:           3600,
+	})
+
 	restrouter, err := rest.MakeRouter(
 		rest.Get("/v1/services.json", request.Services),
 		rest.Post("/v1/requests.json", request.Create),

@@ -4,10 +4,11 @@ import (
 	"errors"
 	"fmt"
 	"sync"
+	"time"
 
-	"Gateway311/engine/common"
-	"Gateway311/engine/router"
-	"Gateway311/engine/structs"
+	"github.com/open311-gateway/engine/common"
+	"github.com/open311-gateway/engine/router"
+	"github.com/open311-gateway/engine/structs"
 
 	log "github.com/jeffizhungry/logrus"
 )
@@ -59,10 +60,11 @@ func Shutdown() {
 // pointer to the underlying data in list0 or list1).  If the activeSet is 0, then list1
 // is cleared and is available for loading.  Vice versa for activeSet1.
 type cache struct {
-	list      [2]map[string]structs.NServices // Index: AreaID
-	services  [2]map[string]bool
-	activeSet int
-	update    chan bool // Update request queue
+	list        [2]map[string]structs.NServices // Index: AreaID
+	services    [2]map[string]bool
+	activeSet   int
+	lastUpdated time.Time
+	update      chan bool // Update request queue
 	sync.RWMutex
 }
 
